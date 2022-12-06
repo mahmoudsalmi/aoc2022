@@ -24,6 +24,18 @@ impl Crates {
         }
     }
 
+    fn apply_action_2(&mut self, action: Action) {
+        let values: Vec<char> = {
+            let from: &mut Vec<char> = self.crates.get_mut(action.from - 1).unwrap();
+            let end: usize = from.len();
+            let start: usize = end - action.size;
+            from.drain(start..end).collect()
+        };
+
+        let to: &mut Vec<char> = self.crates.get_mut(action.to - 1).unwrap();
+        values.iter().for_each(|c| to.push(*c))
+    }
+
     fn top_crates(&self) -> String {
         self.crates
             .iter()
@@ -105,8 +117,17 @@ fn part1(data: &str) -> String {
     crates.top_crates()
 }
 
-fn part2(_data: &str) -> u64 {
-    0
+fn part2(data: &str) -> String {
+    let data_split = data.split("\n\n").collect::<Vec<&str>>();
+
+    let mut crates: Crates = data_split[0].parse().unwrap();
+
+    data_split[1]
+        .lines()
+        .map(|line| line.parse::<Action>().unwrap())
+        .for_each(|action| crates.apply_action_2(action));
+
+    crates.top_crates()
 }
 
 fn main() -> io::Result<()> {
