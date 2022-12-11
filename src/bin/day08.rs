@@ -87,12 +87,94 @@ fn part1(data: &str) -> usize {
         .flatten()
         .collect::<HashSet<(usize, usize)>>();
 
-
     global_set.len()
 }
 
-fn part2(_data: &str) -> String {
-    "NOT IMPLEMENTED!!!".to_owned()
+fn part2(data: &str) -> isize {
+    let digits: Vec<Vec<i8>> = data
+        .lines()
+        .map(|line| {
+            line.chars()
+                .map(|c| c.to_digit(10).unwrap() as i8)
+                .collect()
+        })
+        .collect();
+
+    let rows_len: usize = digits.len();
+    let columns_len: usize = digits[1].len();
+
+    let mut max: isize = 0;
+
+    (0..rows_len).for_each(|r| {
+        (0..columns_len).for_each(|c| {
+            let curr = digits[r][c];
+            let up_score: isize = (0..r)
+                .rev()
+                .map(|i| digits[i][c])
+                .fold((0, false), |res, d| {
+                    if !res.1 {
+                        if d >= curr {
+                            (res.0 + 1, true)
+                        } else {
+                            (res.0 + 1, false)
+                        }
+                    } else {
+                        res
+                    }
+                })
+                .0;
+            let right_score: isize = (c + 1..columns_len)
+                .map(|j| digits[r][j])
+                .fold((0, false), |res, d| {
+                    if !res.1 {
+                        if d >= curr {
+                            (res.0 + 1, true)
+                        } else {
+                            (res.0 + 1, false)
+                        }
+                    } else {
+                        res
+                    }
+                })
+                .0;
+            let down_score: isize = (r + 1..rows_len)
+                .map(|i| digits[i][c])
+                .fold((0, false), |res, d| {
+                    if !res.1 {
+                        if d >= curr {
+                            (res.0 + 1, true)
+                        } else {
+                            (res.0 + 1, false)
+                        }
+                    } else {
+                        res
+                    }
+                })
+                .0;
+            let left_score: isize = (0..c)
+                .rev()
+                .map(|j| digits[r][j])
+                .fold((0, false), |res, d| {
+                    if !res.1 {
+                        if d >= curr {
+                            (res.0 + 1, true)
+                        } else {
+                            (res.0 + 1, false)
+                        }
+                    } else {
+                        res
+                    }
+                })
+                .0;
+
+            let score = up_score * right_score * down_score * left_score;
+            if max < score {
+                max = score;
+            }
+        });
+    });
+
+    max
 }
 
 fn main() -> Result<()> {
